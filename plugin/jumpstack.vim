@@ -5,6 +5,9 @@ function! jumpstack#InitVar()
     if !exists("w:jumpstack_current")
         let w:jumpstack_current = -1
     endif
+    if !exists("w:jumpstack_in_jump")
+        let w:jumpstack_in_jump = 0
+    endif
     if !exists("g:jumpstack_diff_level")
         let g:jumpstack_diff_level = 1
     endif
@@ -12,6 +15,9 @@ endfunction()
 
 function! jumpstack#Mark(...)
     call jumpstack#InitVar()
+    if w:jumpstack_in_jump == 1
+        return
+    endif
     let diff_level = g:jumpstack_diff_level
     if a:0 == 1
         let diff_level = a:1
@@ -21,6 +27,9 @@ endfunction
 
 function! jumpstack#MarkPos(file, pos, diff_level)
     call jumpstack#InitVar()
+    if w:jumpstack_in_jump == 1
+        return
+    endif
     let w:jumpstack_stack = w:jumpstack_stack[:w:jumpstack_current]
     if len(w:jumpstack_stack) > 0
         let last = w:jumpstack_stack[-1]
@@ -48,6 +57,7 @@ endfunction
 
 function! jumpstack#Jump(index)
     call jumpstack#InitVar()
+    let w:jumpstack_in_jump = 1
     if a:index < 0 || a:index >= len(w:jumpstack_stack)
         return
     endif
@@ -60,6 +70,7 @@ function! jumpstack#Jump(index)
     exec "edit ".file
     call setpos('.', pos)
     let w:jumpstack_current = a:index
+    let w:jumpstack_in_jump = 0
 endfunction
 
 function! jumpstack#EchoStack()
