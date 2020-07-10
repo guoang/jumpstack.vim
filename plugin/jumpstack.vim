@@ -45,6 +45,11 @@ function! jumpstack#MarkPos(file, pos, diff_level)
     let w:jumpstack_current =  w:jumpstack_current + 1
 endfunction
 
+function! jumpstack#Pop()
+    let w:jumpstack_current = w:jumpstack_current - 1
+    let w:jumpstack_stack = w:jumpstack_stack[:w:jumpstack_current]
+endfunction
+
 function! jumpstack#JumpNext()
     call jumpstack#InitVar()
     call jumpstack#Jump(w:jumpstack_current + 1)
@@ -59,12 +64,14 @@ function! jumpstack#Jump(index)
     call jumpstack#InitVar()
     let w:jumpstack_in_jump = 1
     if a:index < 0 || a:index >= len(w:jumpstack_stack)
+        let w:jumpstack_in_jump = 0
         return
     endif
     let target = w:jumpstack_stack[a:index]
     let file = target[0]
     let pos = target[1]
     if empty(glob(file))
+        let w:jumpstack_in_jump = 0
         return
     endif
     exec "edit ".file
