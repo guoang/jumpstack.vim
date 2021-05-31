@@ -27,7 +27,7 @@ endfunction
 
 function! jumpstack#MarkPos(file, pos, diff_level)
     call jumpstack#InitVar()
-    if w:jumpstack_in_jump == 1
+    if w:jumpstack_in_jump == 1 || a:file == ""
         return
     endif
     let w:jumpstack_stack = w:jumpstack_stack[:w:jumpstack_current]
@@ -74,7 +74,9 @@ function! jumpstack#Jump(index)
         let w:jumpstack_in_jump = 0
         return
     endif
-    exec "edit ".file
+    if file != expand('%:p')
+        exec "edit ".file
+    endif
     call setpos('.', pos)
     let w:jumpstack_current = a:index
     let w:jumpstack_in_jump = 0
